@@ -79,6 +79,18 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 
 Servo myservo;
 
+// highpass filter vars
+int sensorVal = 0;
+
+float EMA_alpha_low = 0.3;
+float EMA_alpha_high = 0.5;
+
+int EMA_S_low = 0;
+int EMA_S_high = 0;
+
+int highpass = 0;
+int bandpass = 0;
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -324,18 +336,7 @@ static void  characteristic2_notify(btstack_timer_source_t *ts) {
   if (digitalRead(BUTTON_PIN) != old_state) {
     Serial.println("characteristic2_notify digital reading ");
     old_state = digitalRead(DIGITAL_IN_PIN);
-//    if (digitalRead(DIGITAL_IN_PIN) == HIGH) {
-//      characteristic2_data[0] = (0x0A);
-//      characteristic2_data[1] = (0x01);
-//      characteristic2_data[2] = (0x00);
-//      ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
-//    }
-//    else {
-//      characteristic2_data[0] = (0x0A);
-//      characteristic2_data[1] = (0x00);
-//      characteristic2_data[2] = (0x00);
-//      ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
-//    }
+
       characteristic2_data[0] = 'B';
       
      
@@ -365,15 +366,25 @@ static void  characteristic2_notify(btstack_timer_source_t *ts) {
   }
 
   else {
-    
+
+    //filtering for potentiometer
     val = analogRead(POT_PIN);
-    Serial.print(val);
+    EMA_S_low = (EMA_alpha_low*val) + ((1-EMA_alpha_low)*EMA_S_low);
+    EMA_S_high = (EMA_alpha_high*val) + ((1-EMA_alpha_high)*EMA_S_high);
+    highpass = val - EMA_S_low;
+    bandpass = EMA_S_high - EMA_S_low; 
+    Serial.print("highpass: ");
     Serial.print("\n");
-
-
-
+    Serial.println(highpass);
+    Serial.print("bandpass: ");
+    Serial.print("\n");
+    Serial.println(bandpass);
+    delay(20);
 
     if (!(val - 39 < oldVal && val + 30 > oldVal)) {
+
+      oldVal = val;
+      
       if (val < 1000) {
         characteristic2_data[0] = 'P';
         characteristic2_data[1] = '0';
@@ -406,6 +417,9 @@ static void  characteristic2_notify(btstack_timer_source_t *ts) {
  */
 void setup() {
   Serial.begin(115200);
+  // initial read for potentiometer
+  EMA_S_low = analogRead(POT_PIN);
+  EMA_S_high = analogRead(POT_PIN);
   delay(5000);
   Serial.println("Simple Controls demo.");
   
