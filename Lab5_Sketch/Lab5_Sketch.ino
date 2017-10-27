@@ -75,6 +75,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 #define ANALOG_IN_PIN              A5
 #define LED_PIN                    D7
 #define BUTTON_PIN                 D17
+#define POT_PIN                    A2
 
 Servo myservo;
 
@@ -214,6 +215,8 @@ int gattWriteCallback(uint16_t value_handle, uint8_t *buffer, uint16_t size) {
 
   // enter loop if correct value handle
   if (character1_handle == value_handle) {
+
+    noInterrupts(); 
     memcpy(characteristic1_data, buffer, CHARACTERISTIC1_MAX_LEN);
     Serial.print("Characteristic1 write value: ");
     char val[3] = {-1, -1, -1};
@@ -256,6 +259,8 @@ int gattWriteCallback(uint16_t value_handle, uint8_t *buffer, uint16_t size) {
       }
      
     }
+
+    interrupts(); 
     
     //Process the data
     if (characteristic1_data[0] == 0x01) { // Command is to control digital out pin
@@ -295,6 +300,10 @@ int gattWriteCallback(uint16_t value_handle, uint8_t *buffer, uint16_t size) {
  *
  * @retval None
  */
+
+int val = 0;
+int oldVal = -1000;
+
 static void  characteristic2_notify(btstack_timer_source_t *ts) {
   if (analog_enabled) { // if analog reading enabled.
     //Serial.println("characteristic2_notify analog reading ");
@@ -331,11 +340,11 @@ static void  characteristic2_notify(btstack_timer_source_t *ts) {
       
      
       if (digitalRead(BUTTON_PIN) == HIGH) {
-        Serial.print("WTF");
+
         characteristic2_data[1] = '0';
         characteristic2_data[2] = '0';
         characteristic2_data[3] = '1';
-
+  
         old_state = HIGH;
       
         if (ble.attServerCanSendPacket())
@@ -343,7 +352,7 @@ static void  characteristic2_notify(btstack_timer_source_t *ts) {
       }
 
       else {
-        Serial.print("UHHHHHH");
+
         characteristic2_data[1] = '0';
         characteristic2_data[2] = '0';
         characteristic2_data[3] = '0';
@@ -353,6 +362,39 @@ static void  characteristic2_notify(btstack_timer_source_t *ts) {
         if (ble.attServerCanSendPacket())
           ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
       }
+  }
+
+  else {
+    
+    val = analogRead(POT_PIN);
+    Serial.print(val);
+    Serial.print("\n");
+
+
+
+
+    if (!(val - 39 < oldVal && val + 30 > oldVal)) {
+      if (val < 1000) {
+        characteristic2_data[0] = 'P';
+        characteristic2_data[1] = '0';
+        characteristic2_data[2] = '0';
+        characteristic2_data[3] = '0';
+      } else {
+        characteristic2_data[0] = 'P';
+        characteristic2_data[1] = '0';
+        characteristic2_data[2] = '0';
+        characteristic2_data[3] = '1';
+      }
+      
+
+      if (ble.attServerCanSendPacket())
+        ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
+    }
+
+    
+    
+    
+
   }
   // Restart timer.
   ble.setTimer(ts, 200);
@@ -423,6 +465,9 @@ void setup() {
 /**
  * @brief Loop.
  */
+
+
+ 
 void loop() {
 //  if (digitalRead(BUTTON_PIN) == HIGH) {
 //    digitalWrite(LED_PIN, HIGH);
@@ -430,6 +475,4 @@ void loop() {
 //  else {
 //    digitalWrite(LED_PIN, LOW);
 //  }
-  
-  
 }

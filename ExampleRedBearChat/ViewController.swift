@@ -23,6 +23,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var labelText: UILabel!
     @IBOutlet weak var textBox: UITextField!
     @IBOutlet weak var rssiLabel: UILabel!
+    @IBOutlet weak var potLabel: UILabel!
     
     
     
@@ -124,19 +125,30 @@ class ViewController: UIViewController {
         self.connectLabel.text = "Disconnected"
     }
     
-    // OLD FUNCTION: parse the received data using BLEDelegate protocol
-    func bleDidReceiveData(data: Data?) {
-        // this data could be anything, here we know its an encoded string
-        let s = String(bytes: data!, encoding: String.Encoding.utf8)
-        labelText.text = s
-
-    }
     
     // NEW FUNCTION EXAMPLE: this was written for you to show how to change to a notification based model
     @objc func onBLEDidRecieveDataNotification(notification:Notification){
         let d = notification.userInfo?["data"] as! Data?
         let s = String(bytes: d!, encoding: String.Encoding.utf8)
-        self.labelText.text = s
+        if (s == "B000")
+        {
+            labelText.text = "🔜";
+        }
+        
+        else if (s == "B001")
+        {
+            labelText.text = "🔛";
+        }
+        
+        else if (s == "P000")
+        {
+            potLabel.text = "Pot value under 1000";
+        }
+            
+        else if (s == "P001")
+        {
+            potLabel.text = "Pot value over 1000";
+        }
     }
     
     
@@ -163,7 +175,7 @@ class ViewController: UIViewController {
             let s = "L000"
             let d = s.data(using: String.Encoding.utf8)!
             bleShield.write(d)
-             
+            
         }
         
         
