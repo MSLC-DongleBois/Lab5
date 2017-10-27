@@ -24,6 +24,12 @@ class ViewController: UIViewController {
     @IBOutlet weak var textBox: UITextField!
     @IBOutlet weak var rssiLabel: UILabel!
     
+    
+    
+    @IBOutlet weak var ledSwitch: UISwitch!
+    
+    @IBOutlet weak var servoTurner: UISlider!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // MARK: CHANGE 1.a: change this as you no longer need to instantiate the BLE Object like this
@@ -133,49 +139,43 @@ class ViewController: UIViewController {
         self.labelText.text = s
     }
     
-    // MARK: User initiated Functions
-    // MARK: CHANGE 1.b: change this as you no longer need to search for perpipherals in this view controller
-//    @IBAction func buttonScanForDevices(_ sender: UIButton) {
-//
-//        // disconnect from any peripherals
-//        var didDisconnect = false
-//        for peripheral in bleShield.peripherals {
-//            if(peripheral.state == .connected){
-//                if(bleShield.disconnectFromPeripheral(peripheral: peripheral)){
-//                    didDisconnect = true
-//                }
-//            }
-//        }
-//        // if we disconnected anything, return from button
-//        if(didDisconnect){
-//            return
-//        }
-//
-//        //start search for peripherals with a timeout of 3 seconds
-//        // this is an asynchronous call and will return before search is complete
-//        if(bleShield.startScanning(timeout: 3.0)){
-//            // after three seconds, try to connect to first peripheral
-//            Timer.scheduledTimer(withTimeInterval: 3.0,
-//                                 repeats: false,
-//                                 block: self.connectTimer)
-//        }
-//
-//        // give connection feedback to the user
-//        self.spinner.startAnimating()
-//    }
     
-    // MARK: CHANGE 1.c: change this as you no longer need to create the connection in this view controller
-    // Called when scan period is over to connect to the first found peripheral
-//    func connectTimer(timer:Timer){
-//
-//        if(bleShield.peripherals.count > 0) {
-//            // connect to the first found peripheral
-//            bleShield.connectToPeripheral(peripheral: bleShield.peripherals[0])
-//        }
-//        else {
-//            self.spinner.stopAnimating()
-//        }
-//    }
+    @IBAction func sliderChanged(_ sender: UISlider) {
+        
+        // prepend S for SERVO
+        let s = "S" + String(Int(sender.value))
+        let d = s.data(using: String.Encoding.utf8)!
+        //print("Slider changing to \(s) ?")
+        bleShield.write(d)
+    }
+    
+    
+    @IBAction func switchOn(_ sender: UISwitch) {
+        
+        if ledSwitch.isOn {
+            print("led switch turned on")
+            let s = "L001"
+            let d = s.data(using: String.Encoding.utf8)!
+            bleShield.write(d)
+            
+        } else {
+            print("led switch turned off")
+            let s = "L000"
+            let d = s.data(using: String.Encoding.utf8)!
+            bleShield.write(d)
+             
+        }
+        
+        
+        // prepend S for SERVO
+        //let s = "S" + String(Int(sender.value))
+        //let d = s.data(using: String.Encoding.utf8)!
+        //print("Slider changing to \(s) ?")
+        //bleShield.write(d)
+        
+        
+    }
+    
     
     // MARK: CHANGE: this function only needs a name change, the BLE writing does not change
     @IBAction func sendDataButton(_ sender: UIButton) {

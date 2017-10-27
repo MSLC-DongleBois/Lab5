@@ -4,7 +4,7 @@
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13174"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -128,6 +128,20 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="101" minValue="101" maxValue="278" translatesAutoresizingMaskIntoConstraints="NO" id="aN5-NH-ghj">
+                                <rect key="frame" x="80" y="471" width="214" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="sliderChanged:" destination="8ss-rr-rj5" eventType="valueChanged" id="dDb-x9-4pN"/>
+                                </connections>
+                            </slider>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="JIm-Ar-moC">
+                                <rect key="frame" x="164" y="520" width="49" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="switchOn:" destination="8ss-rr-rj5" eventType="valueChanged" id="2pv-J9-eh5"/>
+                                </connections>
+                            </switch>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="B37-Ax-vnp"/>
@@ -135,14 +149,16 @@
                     <connections>
                         <outlet property="connectLabel" destination="hqg-Ct-lru" id="ohd-tQ-a6T"/>
                         <outlet property="labelText" destination="pAb-F4-XNK" id="6Va-Dm-6ke"/>
+                        <outlet property="ledSwitch" destination="JIm-Ar-moC" id="avo-rg-FV3"/>
                         <outlet property="rssiLabel" destination="RK4-eI-9ji" id="s5S-00-vCb"/>
+                        <outlet property="servoTurner" destination="aN5-NH-ghj" id="9Ri-qs-upi"/>
                         <outlet property="spinner" destination="IEr-5P-BUp" id="MYL-ea-50K"/>
                         <outlet property="textBox" destination="rtY-Iv-Zuw" id="3UL-pf-coI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SVo-WL-Di0" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1164" y="132.68365817091455"/>
+            <point key="canvasLocation" x="916" y="132.68365817091455"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="x0Y-es-x3M">
@@ -160,7 +176,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h4i-sO-beA" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-574" y="133"/>
+            <point key="canvasLocation" x="-490" y="133"/>
         </scene>
     </scenes>
 </document>
