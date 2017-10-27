@@ -74,6 +74,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 #define SERVO_PIN                  D0
 #define ANALOG_IN_PIN              A5
 #define LED_PIN                    D7
+#define BUTTON_PIN                 D17
 
 Servo myservo;
 
@@ -235,7 +236,9 @@ int gattWriteCallback(uint16_t value_handle, uint8_t *buffer, uint16_t size) {
     if (pre == 83) {
       myservo.write(position);
       delay(15);
-    } 
+    }
+
+    // IFF pre == L
     else if (pre == 76) {
      
       Serial.print("WE GOT HERE");
@@ -278,6 +281,7 @@ int gattWriteCallback(uint16_t value_handle, uint8_t *buffer, uint16_t size) {
       myservo.write(0);
       analogWrite(PWM_PIN, 0);
       digitalWrite(DIGITAL_OUT_PIN, LOW);
+      Serial.print("did it get hur");
       old_state = LOW;
     }
   }
@@ -296,28 +300,59 @@ static void  characteristic2_notify(btstack_timer_source_t *ts) {
     //Serial.println("characteristic2_notify analog reading ");
     // Read and send out
     uint16_t value = analogRead(ANALOG_IN_PIN);
-    characteristic2_data[0] = (0x0B);
-    characteristic2_data[1] = (value >> 8);
-    characteristic2_data[2] = (value);
+//    characteristic2_data[0] = (0x0B);
+//    characteristic2_data[1] = (value >> 8);
+//    characteristic2_data[2] = (value);
+
+      
+    
     if (ble.attServerCanSendPacket())
       ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
   }
+
+  
   // If digital in changes, report the state.
-  if (digitalRead(DIGITAL_IN_PIN) != old_state) {
+  if (digitalRead(BUTTON_PIN) != old_state) {
     Serial.println("characteristic2_notify digital reading ");
     old_state = digitalRead(DIGITAL_IN_PIN);
-    if (digitalRead(DIGITAL_IN_PIN) == HIGH) {
-      characteristic2_data[0] = (0x0A);
-      characteristic2_data[1] = (0x01);
-      characteristic2_data[2] = (0x00);
-      ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
-    }
-    else {
-      characteristic2_data[0] = (0x0A);
-      characteristic2_data[1] = (0x00);
-      characteristic2_data[2] = (0x00);
-      ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
-    }
+//    if (digitalRead(DIGITAL_IN_PIN) == HIGH) {
+//      characteristic2_data[0] = (0x0A);
+//      characteristic2_data[1] = (0x01);
+//      characteristic2_data[2] = (0x00);
+//      ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
+//    }
+//    else {
+//      characteristic2_data[0] = (0x0A);
+//      characteristic2_data[1] = (0x00);
+//      characteristic2_data[2] = (0x00);
+//      ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
+//    }
+      characteristic2_data[0] = 'B';
+      
+     
+      if (digitalRead(BUTTON_PIN) == HIGH) {
+        Serial.print("WTF");
+        characteristic2_data[1] = '0';
+        characteristic2_data[2] = '0';
+        characteristic2_data[3] = '1';
+
+        old_state = HIGH;
+      
+        if (ble.attServerCanSendPacket())
+          ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
+      }
+
+      else {
+        Serial.print("UHHHHHH");
+        characteristic2_data[1] = '0';
+        characteristic2_data[2] = '0';
+        characteristic2_data[3] = '0';
+
+        old_state = LOW;
+        
+        if (ble.attServerCanSendPacket())
+          ble.sendNotify(character2_handle, characteristic2_data, CHARACTERISTIC2_MAX_LEN);
+      }
   }
   // Restart timer.
   ble.setTimer(ts, 200);
@@ -371,6 +406,7 @@ void setup() {
   pinMode(DIGITAL_IN_PIN, INPUT_PULLUP);
   pinMode(PWM_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT);
 
   // Default to internally pull high, change it if you need
   digitalWrite(DIGITAL_IN_PIN, HIGH);
@@ -388,5 +424,12 @@ void setup() {
  * @brief Loop.
  */
 void loop() {
+//  if (digitalRead(BUTTON_PIN) == HIGH) {
+//    digitalWrite(LED_PIN, HIGH);
+//  }
+//  else {
+//    digitalWrite(LED_PIN, LOW);
+//  }
+  
   
 }
